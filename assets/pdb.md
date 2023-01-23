@@ -1,0 +1,5 @@
+The President's Daily Brief (PDB), sometimes referred to as the President's Daily Briefing or the President's Daily Bulletin, is a top-secret document produced and given each morning to the president of the United States and a small number of top-level U.S. officials. It includes highly classified intelligence analysis, information about covert operations, and reports from the most sensitive U.S. sources or those shared by allied intelligence agencies. In addition, the president may provide the PDB to the president-elect of the United States between election day and inauguration and to former presidents on request.
+
+The director of national intelligence produces the PDB by fusing intelligence from the Central Intelligence Agency, the Defense Intelligence Agency, the National Security Agency (NSA), the Federal Bureau of Investigation (FBI), the Defense Department, Homeland Security, and other members of the U.S. Intelligence Community.
+
+The FOIArchive contains declassified copies of the PDBs from xxxx to xxxx. 
