@@ -1,5 +1,4 @@
 import streamlit as st
-import plotly.express as px
 import pandas as pd
 import psycopg2
 
@@ -38,13 +37,12 @@ def run_query(query):
 # Database initialization
 conn = init_connection()
 doc_dist_qry = """
-select extract(year from authored)::integer yr, corpus collection,
-       count(*) doccnt
+select extract(year from authored)::integer "Year", count(*) "PDBs"
    from foiarchive.docs
    where full_text @@ websearch_to_tsquery('english', '{search}') and
          corpus='pdb'
-   group by yr, corpus
-   order by yr, doccnt
+   group by "Year"
+   order by "Year"
 """
 
 doc_agg_qry = """
@@ -62,23 +60,13 @@ srchstr = st.text_input(label='',
 if srchstr:
     doc_dist_df = pd.read_sql_query(doc_dist_qry.format(search=srchstr), conn)
     if len(doc_dist_df):
-        fig = px.bar(doc_dist_df, x='yr', y='doccnt', color='collection',
-                     labels={'yr': 'Year',
-                             'doccnt': 'Number of Documents',
-                             'collection': 'Collections:'})
-        fig.update_layout(legend={'orientation': 'h',
-                                  'yanchor': 'bottom',
-                                  'y': 1.02,
-                                  'xanchor': 'right',
-                                  'x': 1})
-        st.plotly_chart(fig, use_container_width=True)
         aggs = run_query(doc_agg_qry.format(search=srchstr))
         doccnt = aggs[0][0]
         firstdt = aggs[0][1]
         lastdt = aggs[0][2]
-        st.markdown(f"## {doccnt} FOIArchive docs contain {srchstr}")
-        st.write(f"First Occurrence {firstdt}")
-        st.write(f"Last Occurrence {lastdt}")
-        st.table(doc_dist_df)
+        st.subheader(f"{doccnt} PDBs mention `{srchstr}`")
+        # st.write(f"First Occurrence {firstdt}")
+        # st.write(f"Last Occurrence {lastdt}")
+        st.bar_chart(doc_dist_df, x="Year", y="PDBs")
     else:
         st.markdown(f"Your search `{srchstr}` did not match any documents")
