@@ -3,7 +3,7 @@ import pandas as pd
 import psycopg2
 
 
-VERSION = 'Beta-v0.1'
+VERSION = 'Beta-v0.2'
 TITLE = f'PDB Search'
 SEARCH_PLACEHOLDER = 'Search the FOIArchive''s PDB collection'
 SEARCH_HELP = 'Use double quotes for phrases, OR for logical or, and - for \
@@ -52,6 +52,21 @@ select count(*) total_docs, min(authored) from_date, max(authored) to_date
          corpus='pdb'
 """
 
+doc_qry = """
+select to_char(authored,'YYYY-MM-DD') date, 
+       '[' || f.title || '](' || source || ')' pdb,
+       d.page_count pages, d.redactions  
+    from foiarchive.docs f join declassification_pdb.docs d 
+                                on (f.doc_id = d.id) 
+    where full_text @@ websearch_to_tsquery('english', '{search}') and
+          corpus = 'pdb'
+    order by authored;
+"""
+
+@st.cache
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
 
 # Search
 srchstr = st.text_input(label='',
@@ -68,5 +83,10 @@ if srchstr:
         # st.write(f"First Occurrence {firstdt}")
         # st.write(f"Last Occurrence {lastdt}")
         st.bar_chart(doc_dist_df, x="Year", y="PDBs")
+        doc_df = pd.read_sql_query(doc_qry.format(search=srchstr), conn)
+        csv = convert_df(doc_df)
+        st.download_button(label='CSV Download', data=csv,
+                           file_name='pdb.csv', mime='text/csv')
+        st.markdown(doc_df.to_markdown(index=False))
     else:
         st.markdown(f"Your search `{srchstr}` did not match any documents")
