@@ -5,7 +5,7 @@ import psycopg2
 
 VERSION = 'Beta-v0.2'
 TITLE = f'PDB Search'
-SEARCH_PLACEHOLDER = 'Search the FOIArchive''s PDB collection'
+SEARCH_PLACEHOLDER = "Search the FOIArchive's PDB collection"
 SEARCH_HELP = 'Use double quotes for phrases, OR for logical or, and - for \
 logical not.'
 
