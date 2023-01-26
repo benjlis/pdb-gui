@@ -3,7 +3,7 @@ import pandas as pd
 import psycopg2
 
 
-VERSION = 'Beta-v0.2'
+VERSION = 'Beta-v0.3'
 TITLE = f'PDB Search'
 SEARCH_PLACEHOLDER = "Search the FOIArchive's PDB collection"
 SEARCH_HELP = 'Use double quotes for phrases, OR for logical or, and - for \
@@ -53,9 +53,12 @@ select count(*) total_docs, min(authored) from_date, max(authored) to_date
 """
 
 doc_qry = """
-select to_char(authored,'YYYY-MM-DD') date, 
-       '[' || f.title || '](' || source || ')' pdb,
-       d.page_count pages, d.redactions  
+select to_char(authored,'YYYY-MM-DD') published, 
+       '[' || f.title || '](' || source || ')' title,
+       d.page_count pages, d.redactions,
+       ts_headline('english', f.body, 
+                   websearch_to_tsquery('english', '{search}'),
+                   'StartSel=**, StopSel=**') snippet  
     from foiarchive.docs f join declassification_pdb.docs d 
                                 on (f.doc_id = d.id) 
     where full_text @@ websearch_to_tsquery('english', '{search}') and
